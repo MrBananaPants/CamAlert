@@ -3,7 +3,11 @@ A Python 3 app that sends a notification if there's a new analog camera availabl
 The app runs in the background on macOS and sends a system notification of it sees a new deal is available.
 Beautiful Soup is used as HTML parser.
 
-![](media/Screenshot menu bar.png) ![](media/Screenshot notification.png)
+<div align="left">
+    <img src="media/Screenshot menu bar.png" width="300"/>
+     <img src="media/Screenshot notification.png" width="300"/>
+</div>
+
 # Features
 - Background check for new listings every 60 seconds
 - Sends system notification with listing title if it finds a new listing
