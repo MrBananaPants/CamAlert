@@ -1,6 +1,6 @@
 setuptools==62.3.2
 plyer~=2.0.0
-#rumps~=0.4.0
 requests~=2.27.1
-rumps~=0.4.0
+#rumps==0.4.0
+#Use the latest dev version of rumps because version 0.3.0 uses a direct import from collections for the class Mapping which should be imported it from collections.abc since python 3.3
 beautifulsoup4~=4.11.1
