@@ -1,0 +1,6 @@
+setuptools==62.3.2
+plyer~=2.0.0
+#rumps~=0.4.0
+requests~=2.27.1
+rumps~=0.4.0
+beautifulsoup4~=4.11.1
