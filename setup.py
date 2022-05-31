@@ -11,7 +11,7 @@ APP = ['CamAlert.py']
 DATA_FILES = []
 OPTIONS = {
     'iconfile': 'media/icon.icns',
-    'plist': {'CFBundleShortVersionString': '0.1.0', },
+    'plist': {'CFBundleShortVersionString': '0.2.0', },
     'packages': ['rumps']
 }
 
