@@ -12,7 +12,7 @@ DATA_FILES = []
 OPTIONS = {
     'iconfile': 'media/icon.icns',
     'plist': {'CFBundleShortVersionString': '0.2.0', },
-    'packages': ['rumps']
+    'packages': ['rumps', 'bs4', 'requests', 'objc']
 }
 
 setup(
