@@ -27,7 +27,6 @@ file2.touch(exist_ok=True)
 
 # Send notification function
 def send_notification(title, text):
-    subtitle = "test"
     print("Displaying notification")
     rumps.notification(title, None, text, data=None, sound=True)
 
@@ -109,6 +108,7 @@ def update():
         rumps.alert(title="CamAlert",
                     message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
                     ok=None, cancel=None)
+        clear_url()
         first_install = False
     print("RESULTS UPDATED")
 
