@@ -36,7 +36,7 @@ def open_listings():
     fileURLs = open(os.path.join(path, "URLs.txt"), "r")
     lines = fileURLs.readlines()
     if not lines:
-        print("geen nieuwe listings")
+        print("NO NEW LISTINGS")
         send_notification("CamAlert", "No new listings")
     else:
         for line in lines:
@@ -166,6 +166,10 @@ class StatusBar(rumps.App):
         reset_camalert()
         check_files()
         update(False)
+
+    @rumps.notifications
+    def notifications(self, _):  # function that reacts to incoming notification dicts
+        open_listings()
 
 
 # Start the loop (with 60 seconds interval)
