@@ -10,9 +10,11 @@ import rumps
 from bs4 import BeautifulSoup
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
+first_install = False
 
 # Check whether the specified path exists or not
 if not os.path.exists(path):
+    first_install = True
     os.makedirs(path)
     print("DIRECTORY CREATED")
 
@@ -25,8 +27,9 @@ file2.touch(exist_ok=True)
 
 # Send notification function
 def send_notification(title, text):
+    subtitle = "test"
     print("Displaying notification")
-    os.system("""osascript -e 'display notification "{}" with title "{}"'""".format(text, title))
+    rumps.notification(title, None, text, data=None, sound=True)
 
 
 # Opens all the URLs in the URLs.txt file in the browser
@@ -54,6 +57,7 @@ def clear_url():
 
 # Update the results to check for new listings
 def update():
+    global first_install
     print("UPDATING RESULTS...")
     source = requests.get(
         "https://www.2dehands.be/l/audio-tv-en-foto/fotocamera-s-analoog/#Language:all-languages|sortBy:SORT_INDEX|sortOrder:DECREASING|view:gallery-view").text
@@ -91,15 +95,21 @@ def update():
         fileURLs.write(str(advertURL.group(1)) + "\n")
     fileURLs.close()
     # Displays a notification if there are new listings
-    if len(dictionaryNewListings) > 0:
+    if len(dictionaryNewListings) > 0 and not first_install:
         if len(dictionaryNewListings) > 1:
             print("multiple new listings")
             send_notification("CamAlert", "Multiple new listings")
         else:
             print("1 new listing")
             send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
-    else:
+    elif not first_install:
         print("NO NEW LISTINGS FOUND")
+    else:
+        print("FIRST INSTALL")
+        rumps.alert(title="CamAlert",
+                    message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
+                    ok=None, cancel=None)
+        first_install = False
     print("RESULTS UPDATED")
 
 
