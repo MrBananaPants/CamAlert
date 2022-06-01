@@ -54,15 +54,16 @@ def update():
     # Finds all the listings on the first page
     parent = soup.find("div", {"class": "mp-Page-element mp-Page-element--main"}).find("ul")
     text = list(parent)
+    for index, item in enumerate(text):
+        text[index] = item.encode('utf-8')
     dictionary = {}
     regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
     for findings in text:
         # Removes paid listings
-        findings = findings.encode('utf-8')
         if "Topadvertentie" not in str(findings):
             advertName = regexName.search(str(findings))
             if advertName is not None:
-                dictionary[advertName.group(1).encode('utf-8')] = str(findings)
+                dictionary[advertName.group(1)] = str(findings)
     dictionaryNewListings = {}
     # Reads all the previous found listings
     file = open("output.txt", "r+")
@@ -85,8 +86,10 @@ def update():
     # Displays a notification if there are new listings
     if len(dictionaryNewListings) > 0:
         if len(dictionaryNewListings) > 1:
+            print("multiple new listings")
             send_notification("CamAlert", "Multiple new listings")
         else:
+            print("1 new listing")
             send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
     else:
         print("NO NEW LISTINGS FOUND")
