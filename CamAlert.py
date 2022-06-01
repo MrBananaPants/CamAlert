@@ -55,7 +55,7 @@ def clear_url():
 
 
 # Update the results to check for new listings
-def update():
+def update(show_notification=True):
     global first_install
     print("UPDATING RESULTS...")
     source = requests.get(
@@ -94,23 +94,39 @@ def update():
         fileURLs.write(str(advertURL.group(1)) + "\n")
     fileURLs.close()
     # Displays a notification if there are new listings
-    if len(dictionaryNewListings) > 0 and not first_install:
-        if len(dictionaryNewListings) > 1:
-            print("multiple new listings")
-            send_notification("CamAlert", "Multiple new listings")
+    if show_notification:
+        if len(dictionaryNewListings) > 0 and not first_install:
+            if len(dictionaryNewListings) > 1:
+                print("multiple new listings")
+                send_notification("CamAlert", "Multiple new listings")
+            else:
+                print("1 new listing")
+                send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
+        elif not first_install:
+            print("NO NEW LISTINGS FOUND")
         else:
-            print("1 new listing")
-            send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
-    elif not first_install:
-        print("NO NEW LISTINGS FOUND")
-    else:
-        print("FIRST INSTALL")
-        rumps.alert(title="CamAlert",
-                    message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
-                    ok=None, cancel=None)
-        clear_url()
-        first_install = False
+            print("FIRST INSTALL")
+            rumps.alert(title="CamAlert",
+                        message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
+                        ok=None, cancel=None)
+            clear_url()
+            first_install = False
     print("RESULTS UPDATED")
+
+# Manual update disables the notifications from update() because it checks if there are older unseen listings in the URLs.txt file
+# and sends a notification accordingly
+# This makes sure the user won't get a notification saying there's 1 new listings but when he opens the new listings, it'll open more than 1 listing
+def manual_update():
+    update(False)
+    file = open(os.path.join(path, "URLs.txt"), "r+")
+    data = file.read()
+    if len(data) == 1:
+        send_notification("CamAlert", "1 new listing")
+    if len(data) > 1:
+        send_notification("CamAlert", "Multiple new listings")
+    else:
+        send_notification("CamAlert", "No new listings")
+    file.close()
 
 
 # Run function every 60 seconds
@@ -140,6 +156,10 @@ class StatusBar(rumps.App):
     @rumps.clicked("Clear new listings")
     def open_browser(self, _):
         clear_url()
+
+    @rumps.clicked("Manual update")
+    def manual(self, _):
+        manual_update()
 
 
 # Display the app in the menu bar
