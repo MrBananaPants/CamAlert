@@ -19,9 +19,9 @@ Beautiful Soup is used as HTML parser and [rumps](https://github.com/jaredks/rum
 # What's not implemented yet
 - Manually check for new listings
 - Manual check should send notification if there are listings that haven’t been opened
-- First time opening app should not open new listings / send notification and can show the user an alert with more info about the app
+- ~~First time opening app should not open new listings / send notification and can show the user an alert with more info about the app~~ [1f6b5bf](https://github.com/MrBananaPants/CamAlert/commit/1f6b5bf89a52b68d4af816b65a2229547c36989a)
 - Option to display icon in menubar instead of text (create a settings json file)
-- Try to use the [rumps notification system](https://rumps.readthedocs.io/en/latest/notification.html)
+- ~~Try to use the [rumps notification system](https://rumps.readthedocs.io/en/latest/notification.html)~~ [1f6b5bf](https://github.com/MrBananaPants/CamAlert/commit/1f6b5bf89a52b68d4af816b65a2229547c36989a)
 - A reset button (in case of problems or bugs)
 
 # Requirements to build
