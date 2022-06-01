@@ -10,19 +10,18 @@ import rumps
 from bs4 import BeautifulSoup
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
-first_install = False
 
-# Check whether the specified path exists or not
-if not os.path.exists(path):
-    first_install = True
-    os.makedirs(path)
-    print("DIRECTORY CREATED")
 
-# Check if the needed files exists. If not, create them
-file1 = Path(os.path.join(path, "output.txt"))
-file1.touch(exist_ok=True)
-file2 = Path(os.path.join(path, "URLs.txt"))
-file2.touch(exist_ok=True)
+def check_files():
+    # Check whether the specified path exists or not
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print("DIRECTORY CREATED")
+    # Check if the needed files exists. If not, create them
+    file1 = Path(os.path.join(path, "output.txt"))
+    file1.touch(exist_ok=True)
+    file2 = Path(os.path.join(path, "URLs.txt"))
+    file2.touch(exist_ok=True)
 
 
 # Send notification function
@@ -56,7 +55,6 @@ def clear_url():
 
 # Update the results to check for new listings
 def update(show_notification=True):
-    global first_install
     print("UPDATING RESULTS...")
     source = requests.get(
         "https://www.2dehands.be/l/audio-tv-en-foto/fotocamera-s-analoog/#Language:all-languages|sortBy:SORT_INDEX|sortOrder:DECREASING|view:gallery-view").text
@@ -78,6 +76,9 @@ def update(show_notification=True):
     # Reads all the previous found listings
     file = open(os.path.join(path, "output.txt"), "r+")
     data = file.read()
+    first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
+    if first_install:
+        print("FIRST INSTALL")
     # Checks if the found listings are new listings that haven't been found yet
     for key in dictionary:
         if str(key) not in data:
@@ -94,24 +95,24 @@ def update(show_notification=True):
         fileURLs.write(str(advertURL.group(1)) + "\n")
     fileURLs.close()
     # Displays a notification if there are new listings
-    if show_notification:
-        if len(dictionaryNewListings) > 0 and not first_install:
-            if len(dictionaryNewListings) > 1:
-                print("multiple new listings")
+    if len(dictionaryNewListings) > 0 and not first_install:
+        if len(dictionaryNewListings) > 1:
+            print("multiple new listings")
+            if show_notification:
                 send_notification("CamAlert", "Multiple new listings")
-            else:
-                print("1 new listing")
-                send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
-        elif not first_install:
-            print("NO NEW LISTINGS FOUND")
         else:
-            print("FIRST INSTALL")
-            rumps.alert(title="CamAlert",
-                        message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
-                        ok=None, cancel=None)
-            clear_url()
-            first_install = False
+            print("1 new listing")
+            if show_notification:
+                send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
+    elif not first_install:
+        print("NO NEW LISTINGS FOUND")
+    else:
+        rumps.alert(title="CamAlert",
+                    message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
+                    ok=None, cancel=None)
+        clear_url()
     print("RESULTS UPDATED")
+
 
 # Manual update disables the notifications from update() because it checks if there are older unseen listings in the URLs.txt file
 # and sends a notification accordingly
@@ -129,6 +130,11 @@ def manual_update():
     file.close()
 
 
+def reset_camalert():
+    open(os.path.join(path, "output.txt"), 'w').close()
+    open(os.path.join(path, "URLs.txt"), 'w').close()
+
+
 # Run function every 60 seconds
 def every(delay):
     next_time = time.time() + delay
@@ -140,12 +146,6 @@ def every(delay):
             traceback.print_exc()
         # skip tasks if we are behind schedule
         next_time += (time.time() - next_time) // delay * delay + delay
-
-
-# Start the loop (with 60 seconds interval)
-threading.Thread(target=lambda: every(60)).start()
-# Do an initial check for new listings when the app starts
-update()
 
 
 class StatusBar(rumps.App):
@@ -161,6 +161,18 @@ class StatusBar(rumps.App):
     def manual(self, _):
         manual_update()
 
+    @rumps.clicked("Reset")
+    def reset(self, _):
+        reset_camalert()
+        check_files()
+        update(False)
+
+
+# Start the loop (with 60 seconds interval)
+threading.Thread(target=lambda: every(60)).start()
+# Do an initial check for new listings when the app starts
+check_files()
+update()
 
 # Display the app in the menu bar
 StatusBar("CamAlert").run()
