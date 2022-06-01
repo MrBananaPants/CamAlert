@@ -58,10 +58,11 @@ def update():
     regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
     for findings in text:
         # Removes paid listings
+        findings = findings.encode('utf-8')
         if "Topadvertentie" not in str(findings):
             advertName = regexName.search(str(findings))
             if advertName is not None:
-                dictionary[advertName.group(1)] = str(findings.encode('utf-8'))
+                dictionary[advertName.group(1).encode('utf-8')] = str(findings)
     dictionaryNewListings = {}
     # Reads all the previous found listings
     file = open("output.txt", "r+")
