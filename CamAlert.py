@@ -149,6 +149,10 @@ def every(delay):
 
 
 class StatusBar(rumps.App):
+    def __init__(self):
+        super(StatusBar, self).__init__("CamAlert")
+        self.menu = ["Open new listings", "Clear new listings", None, "Manual update", None, "Reset"]
+
     @rumps.clicked("Open new listings")
     def browser(self, _):
         open_listings()
@@ -179,4 +183,4 @@ check_files()
 update()
 
 # Display the app in the menu bar
-StatusBar("CamAlert").run()
+StatusBar().run()
