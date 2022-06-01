@@ -4,8 +4,8 @@ The app runs in the background on macOS and sends a system notification if it se
 Beautiful Soup is used as HTML parser and [rumps](https://github.com/jaredks/rumps) is used to make the status bar app.
 
 <div align="left">
-    <img src="media/Screenshot menu bar.png" width="300"/>
-     <img src="media/Screenshot notification.png" width="300"/>
+    <img src="media/Screenshot menu bar.png" height="125"/>
+     <img src="media/Screenshot notification.png" height="125"/>
 </div>
 
 # Features
