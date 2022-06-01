@@ -1,7 +1,7 @@
 # CamAlert
 A Python 3 app that sends a notification if there's a new analog camera available on 2dehands (the Ebay of Belgium).
-The app runs in the background on macOS and sends a system notification of it sees a new deal is available.
-Beautiful Soup is used as HTML parser.
+The app runs in the background on macOS and sends a system notification if it sees a new deal is available.
+Beautiful Soup is used as HTML parser and [rumps](https://github.com/jaredks/rumps) is used to make the status bar app.
 
 <div align="left">
     <img src="media/Screenshot menu bar.png" width="300"/>
@@ -15,6 +15,14 @@ Beautiful Soup is used as HTML parser.
   - Open all new listings in the default browser
   - Clear all new listings (in case you haven't used the app in a while and don't want it to open 50+ Chrome tabs)
   - Quit the application
+
+# What's not implemented yet
+- Manually check for new listings
+- Manual check should send notification if there are listings that haven’t been opened
+- First time opening app should not open new listings / send notification and can show the user an alert with more info about the app
+- Option to display icon in menubar instead of text (create a settings json file)
+- Try to use the [rumps notification system](https://rumps.readthedocs.io/en/latest/notification.html)
+- A reset button (in case of problems or bugs)
 
 # Requirements to build
 You need `py2app` to compile the app yourself.
