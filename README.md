@@ -11,10 +11,12 @@ Beautiful Soup is used as HTML parser and [rumps](https://github.com/jaredks/rum
 # Features
 - Background check for new listings every 60 seconds
 - Sends system notification with listing title if it finds a new listing
+- Clicking the notification will open all new listings
 - Status bar icon with following options:
   - Open all new listings in the default browser
   - Clear all new listings (in case you haven't used the app in a while and don't want it to open 50+ Chrome tabs)
   - Manual check for new listings
+  - Reset
   - Quit the application
 
 # What's not implemented yet
@@ -23,7 +25,7 @@ Beautiful Soup is used as HTML parser and [rumps](https://github.com/jaredks/rum
 - ~~First time opening app should not open new listings / send notification and can show the user an alert with more info about the app~~ [1f6b5bf](https://github.com/MrBananaPants/CamAlert/commit/1f6b5bf89a52b68d4af816b65a2229547c36989a)
 - Option to display icon in menubar instead of text (create a settings json file)
 - ~~Try to use the [rumps notification system](https://rumps.readthedocs.io/en/latest/notification.html)~~ [1f6b5bf](https://github.com/MrBananaPants/CamAlert/commit/1f6b5bf89a52b68d4af816b65a2229547c36989a)
-- A reset button (in case of problems or bugs)
+- ~~A reset button (in case of problems or bugs)~~ [ddf2bb6](https://github.com/MrBananaPants/CamAlert/commit/ddf2bb6baadc0fd68a957f28067bc1f3ae329480)
 
 # Requirements to build
 You need `py2app` to compile the app yourself.
