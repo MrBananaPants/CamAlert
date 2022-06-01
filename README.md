@@ -14,11 +14,12 @@ Beautiful Soup is used as HTML parser and [rumps](https://github.com/jaredks/rum
 - Status bar icon with following options:
   - Open all new listings in the default browser
   - Clear all new listings (in case you haven't used the app in a while and don't want it to open 50+ Chrome tabs)
+  - Manual check for new listings
   - Quit the application
 
 # What's not implemented yet
-- Manually check for new listings
-- Manual check should send notification if there are listings that haven’t been opened
+- ~~Manually check for new listings~~ [02a760c](https://github.com/MrBananaPants/CamAlert/commit/02a760c6cb26211a4b548f1a266e51d88d1e7157)
+- ~~Manual check should send notification if there are listings that haven’t been opened yet~~ [02a760c](https://github.com/MrBananaPants/CamAlert/commit/02a760c6cb26211a4b548f1a266e51d88d1e7157)
 - ~~First time opening app should not open new listings / send notification and can show the user an alert with more info about the app~~ [1f6b5bf](https://github.com/MrBananaPants/CamAlert/commit/1f6b5bf89a52b68d4af816b65a2229547c36989a)
 - Option to display icon in menubar instead of text (create a settings json file)
 - ~~Try to use the [rumps notification system](https://rumps.readthedocs.io/en/latest/notification.html)~~ [1f6b5bf](https://github.com/MrBananaPants/CamAlert/commit/1f6b5bf89a52b68d4af816b65a2229547c36989a)
