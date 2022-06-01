@@ -9,10 +9,17 @@ import requests
 import rumps
 from bs4 import BeautifulSoup
 
+path = os.path.join(os.getenv("HOME"), "CamAlert")
+
+# Check whether the specified path exists or not
+if not os.path.exists(path):
+    os.makedirs(path)
+    print("DIRECTORY CREATED")
+
 # Check if the needed files exists. If not, create them
-file1 = Path('output.txt')
+file1 = Path(os.path.join(path, "output.txt"))
 file1.touch(exist_ok=True)
-file2 = Path('URLs.txt')
+file2 = Path(os.path.join(path, "URLs.txt"))
 file2.touch(exist_ok=True)
 
 
@@ -25,7 +32,7 @@ def send_notification(title, text):
 # Opens all the URLs in the URLs.txt file in the browser
 def open_listings():
     baseURL = "https://www.2dehands.be"
-    fileURLs = open("URLs.txt", "r")
+    fileURLs = open(os.path.join(path, "URLs.txt"), "r")
     lines = fileURLs.readlines()
     if not lines:
         print("geen nieuwe listings")
@@ -36,13 +43,13 @@ def open_listings():
             os.system(command)
         fileURLs.close()
         # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
-        open('URLs.txt', 'w').close()
+        open(os.path.join(path, "URLs.txt"), 'w').close()
 
 
 # Function the clear all the URLs in URLs.txt
 # Usefull if the list is really long like when you haven't used the app in a while
 def clear_url():
-    open('URLs.txt', 'w').close()
+    open(os.path.join(path, "URLs.txt"), 'w').close()
 
 
 # Update the results to check for new listings
@@ -66,7 +73,7 @@ def update():
                 dictionary[advertName.group(1)] = str(findings)
     dictionaryNewListings = {}
     # Reads all the previous found listings
-    file = open("output.txt", "r+")
+    file = open(os.path.join(path, "output.txt"), "r+")
     data = file.read()
     # Checks if the found listings are new listings that haven't been found yet
     for key in dictionary:
@@ -76,7 +83,7 @@ def update():
             dictionaryNewListings[key] = dictionary[key]
     file.close()
 
-    fileURLs = open("URLs.txt", "a+")
+    fileURLs = open(os.path.join(path, "URLs.txt"), "a+")
     regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
     # Adds the URLs for the new listings to the URLs.txt file
     for key in dictionaryNewListings:
