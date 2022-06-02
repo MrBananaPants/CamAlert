@@ -8,6 +8,7 @@ from pathlib import Path
 import requests
 import rumps
 from bs4 import BeautifulSoup
+import subprocess
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
 
@@ -18,10 +19,17 @@ def check_files():
         os.makedirs(path)
         print("DIRECTORY CREATED")
     # Check if the needed files exists. If not, create them
-    file1 = Path(os.path.join(path, "output.txt"))
-    file1.touch(exist_ok=True)
-    file2 = Path(os.path.join(path, "URLs.txt"))
-    file2.touch(exist_ok=True)
+    output_file = Path(os.path.join(path, "output.txt"))
+    output_file.touch(exist_ok=True)
+    URLs_file = Path(os.path.join(path, "URLs.txt"))
+    URLs_file.touch(exist_ok=True)
+    blocklist_file = Path(os.path.join(path, "blocklist.txt"))
+    blocklist_file.touch(exist_ok=True)
+    if os.path.getsize(os.path.join(path, "blocklist.txt")) == 0:
+        file = open(os.path.join(path, "blocklist.txt"), "a")
+        file.write(
+            "#This is the blocklist\n#To block a certain seller, brand,... you can add the name here\n#Put every word on a new line (not case sensitive)")
+        file.close()
 
 
 # Send notification function
@@ -66,12 +74,26 @@ def update(show_notification=True):
         text[index] = item.encode('utf-8')
     dictionary = {}
     regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
+    blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
+    blocklist_lines = blocklist_file.readlines()
     for findings in text:
-        # Removes paid listings
-        if "Topadvertentie" not in str(findings):
+        blocked = False
+        # Removes findings that are in the blocklist
+        if len(blocklist_lines) > 3:
+            for line in blocklist_lines:
+
+                if line[0] != "#" and line.lower().rstrip() in str(findings).lower():
+                    blocked = True
+                    print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
+            if not blocked:
+                advertName = regexName.search(str(findings))
+                if advertName is not None:
+                    dictionary[advertName.group(1)] = str(findings)
+        else:
             advertName = regexName.search(str(findings))
             if advertName is not None:
                 dictionary[advertName.group(1)] = str(findings)
+
     dictionaryNewListings = {}
     # Reads all the previous found listings
     file = open(os.path.join(path, "output.txt"), "r+")
@@ -133,6 +155,11 @@ def manual_update():
 def reset_camalert():
     open(os.path.join(path, "output.txt"), 'w').close()
     open(os.path.join(path, "URLs.txt"), 'w').close()
+    open(os.path.join(path, "blocklist.txt"), 'w').close()
+
+
+def open_blocklist():
+    subprocess.call(['open', '-a', 'TextEdit', os.path.join(path, "blocklist.txt")])
 
 
 # Run function every 60 seconds
@@ -151,7 +178,7 @@ def every(delay):
 class StatusBar(rumps.App):
     def __init__(self):
         super(StatusBar, self).__init__("CamAlert")
-        self.menu = ["Open new listings", "Clear new listings", None, "Manual update", None, "Reset"]
+        self.menu = ["Open new listings", "Clear new listings", None, "Manual update", None, ["Settings", ["Blocklist", "Reset"]]]
 
     @rumps.clicked("Open new listings")
     def browser(self, _):
@@ -165,7 +192,11 @@ class StatusBar(rumps.App):
     def manual(self, _):
         manual_update()
 
-    @rumps.clicked("Reset")
+    @rumps.clicked("Settings", "Blocklist")
+    def blocklist(self, _):
+        open_blocklist()
+
+    @rumps.clicked("Settings", "Reset")
     def reset(self, _):
         reset_camalert()
         check_files()
