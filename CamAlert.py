@@ -1,5 +1,7 @@
+import json
 import os
 import re
+import subprocess
 import threading
 import time
 import traceback
@@ -8,7 +10,6 @@ from pathlib import Path
 import requests
 import rumps
 from bs4 import BeautifulSoup
-import subprocess
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
 
@@ -61,79 +62,90 @@ def clear_url():
     open(os.path.join(path, "URLs.txt"), 'w').close()
 
 
+def check_connection():
+    try:
+        request = requests.get("https://www.2dehands.be", timeout=5)
+    except (requests.ConnectionError, requests.Timeout) as exception:
+        print("CONNECTION ERROR")
+        send_notification("CamAlert", "Connection error")
+        return False
+    return True
+
+
 # Update the results to check for new listings
 def update(show_notification=True):
     print("UPDATING RESULTS...")
-    source = requests.get(
-        "https://www.2dehands.be/l/audio-tv-en-foto/fotocamera-s-analoog/#Language:all-languages|sortBy:SORT_INDEX|sortOrder:DECREASING|view:gallery-view").text
-    soup = BeautifulSoup(source, 'lxml')
-    # Finds all the listings on the first page
-    parent = soup.find("div", {"class": "mp-Page-element mp-Page-element--main"}).find("ul")
-    text = list(parent)
-    for index, item in enumerate(text):
-        text[index] = item.encode('utf-8')
-    dictionary = {}
-    regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
-    blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
-    blocklist_lines = blocklist_file.readlines()
-    for findings in text:
-        blocked = False
-        # Removes findings that are in the blocklist
-        if len(blocklist_lines) > 3:
-            for line in blocklist_lines:
+    if check_connection():
+        source = requests.get(
+            "https://www.2dehands.be/l/audio-tv-en-foto/fotocamera-s-analoog/#Language:all-languages|sortBy:SORT_INDEX|sortOrder:DECREASING|view:gallery-view").text
+        soup = BeautifulSoup(source, 'lxml')
+        # Finds all the listings on the first page
+        parent = soup.find("div", {"class": "mp-Page-element mp-Page-element--main"}).find("ul")
+        text = list(parent)
+        for index, item in enumerate(text):
+            text[index] = item.encode('utf-8')
+        dictionary = {}
+        regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
+        blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
+        blocklist_lines = blocklist_file.readlines()
+        for findings in text:
+            blocked = False
+            # Removes findings that are in the blocklist
+            if len(blocklist_lines) > 3:
+                for line in blocklist_lines:
 
-                if line[0] != "#" and line.lower().rstrip() in str(findings).lower():
-                    blocked = True
-                    print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
-            if not blocked:
+                    if line[0] != "#" and line.lower().rstrip() in str(findings).lower():
+                        blocked = True
+                        print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
+                if not blocked:
+                    advertName = regexName.search(str(findings))
+                    if advertName is not None:
+                        dictionary[advertName.group(1)] = str(findings)
+            else:
                 advertName = regexName.search(str(findings))
                 if advertName is not None:
                     dictionary[advertName.group(1)] = str(findings)
-        else:
-            advertName = regexName.search(str(findings))
-            if advertName is not None:
-                dictionary[advertName.group(1)] = str(findings)
 
-    dictionaryNewListings = {}
-    # Reads all the previous found listings
-    file = open(os.path.join(path, "output.txt"), "r+")
-    data = file.read()
-    first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
-    if first_install:
-        print("FIRST INSTALL")
-    # Checks if the found listings are new listings that haven't been found yet
-    for key in dictionary:
-        if str(key) not in data:
-            print("NEW LISTING: " + str(key))
-            file.write(str(key) + "\n")
-            dictionaryNewListings[key] = dictionary[key]
-    file.close()
+        dictionaryNewListings = {}
+        # Reads all the previous found listings
+        file = open(os.path.join(path, "output.txt"), "r+")
+        data = file.read()
+        first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
+        if first_install:
+            print("FIRST INSTALL")
+        # Checks if the found listings are new listings that haven't been found yet
+        for key in dictionary:
+            if str(key) not in data:
+                print("NEW LISTING: " + str(key))
+                file.write(str(key) + "\n")
+                dictionaryNewListings[key] = dictionary[key]
+        file.close()
 
-    fileURLs = open(os.path.join(path, "URLs.txt"), "a+")
-    regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
-    # Adds the URLs for the new listings to the URLs.txt file
-    for key in dictionaryNewListings:
-        advertURL = regexURL.search(str(dictionaryNewListings[key]))
-        fileURLs.write(str(advertURL.group(1)) + "\n")
-    fileURLs.close()
-    # Displays a notification if there are new listings
-    if len(dictionaryNewListings) > 0 and not first_install:
-        if len(dictionaryNewListings) > 1:
-            print("multiple new listings")
-            if show_notification:
-                send_notification("CamAlert", "Multiple new listings")
+        fileURLs = open(os.path.join(path, "URLs.txt"), "a+")
+        regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
+        # Adds the URLs for the new listings to the URLs.txt file
+        for key in dictionaryNewListings:
+            advertURL = regexURL.search(str(dictionaryNewListings[key]))
+            fileURLs.write(str(advertURL.group(1)) + "\n")
+        fileURLs.close()
+        # Displays a notification if there are new listings
+        if len(dictionaryNewListings) > 0 and not first_install:
+            if len(dictionaryNewListings) > 1:
+                print("multiple new listings")
+                if show_notification:
+                    send_notification("CamAlert", "Multiple new listings")
+            else:
+                print("1 new listing")
+                if show_notification:
+                    send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
+        elif not first_install:
+            print("NO NEW LISTINGS FOUND")
         else:
-            print("1 new listing")
-            if show_notification:
-                send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
-    elif not first_install:
-        print("NO NEW LISTINGS FOUND")
-    else:
-        rumps.alert(title="CamAlert",
-                    message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
-                    ok=None, cancel=None)
-        clear_url()
-    print("RESULTS UPDATED")
+            rumps.alert(title="CamAlert",
+                        message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
+                        ok=None, cancel=None)
+            clear_url()
+        print("RESULTS UPDATED")
 
 
 # Manual update disables the notifications from update() because it checks if there are older unseen listings in the URLs.txt file
@@ -190,7 +202,8 @@ class StatusBar(rumps.App):
 
     @rumps.clicked("Manual update")
     def manual(self, _):
-        manual_update()
+        if check_connection():
+            manual_update()
 
     @rumps.clicked("Settings", "Blocklist")
     def blocklist(self, _):
