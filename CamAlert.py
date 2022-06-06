@@ -167,7 +167,7 @@ def manual_update():
 def reset_camalert():
     open(os.path.join(path, "output.txt"), 'w').close()
     open(os.path.join(path, "URLs.txt"), 'w').close()
-    open(os.path.join(path, "blocklist.txt"), 'w').close()
+    # open(os.path.join(path, "blocklist.txt"), 'w').close()
 
 
 def open_blocklist():
