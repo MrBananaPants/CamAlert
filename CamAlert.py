@@ -1,4 +1,3 @@
-import json
 import os
 import re
 import subprocess
@@ -154,10 +153,11 @@ def update(show_notification=True):
 def manual_update():
     update(False)
     file = open(os.path.join(path, "URLs.txt"), "r+")
-    data = file.read()
+    data = file.readlines()
+    print("len(data) = " + str(len(data)))
     if len(data) == 1:
         send_notification("CamAlert", "1 new listing")
-    if len(data) > 1:
+    elif len(data) > 1:
         send_notification("CamAlert", "Multiple new listings")
     else:
         send_notification("CamAlert", "No new listings")
