@@ -18,7 +18,7 @@ def check_files():
     if not os.path.exists(path):
         os.makedirs(path)
         print("DIRECTORY CREATED")
-    # Check if the needed files exists. If not, create them
+    # Check if the needed files exist. If not, create them
     output_file = Path(os.path.join(path, "output.txt"))
     output_file.touch(exist_ok=True)
     URLs_file = Path(os.path.join(path, "URLs.txt"))
@@ -43,6 +43,7 @@ def open_listings():
     baseURL = "https://www.2dehands.be"
     fileURLs = open(os.path.join(path, "URLs.txt"), "r")
     lines = fileURLs.readlines()
+    # Send notification if there are no new URLs
     if not lines:
         print("NO NEW LISTINGS")
         send_notification("CamAlert", "No new listings")
@@ -88,12 +89,12 @@ def update(show_notification=True):
         regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
         blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
         blocklist_lines = blocklist_file.readlines()
+        # Make a dictionary with the advert name as key and the URL as value
         for findings in text:
             blocked = False
-            # Removes findings that are in the blocklist
+            # Removes findings that are in the blocklist if there are any items in the blocklist
             if len(blocklist_lines) > 3:
                 for line in blocklist_lines:
-
                     if line[0] != "#" and line.lower().rstrip() in str(findings).lower():
                         blocked = True
                         print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
@@ -102,6 +103,7 @@ def update(show_notification=True):
                     advertURL = regexURL.search(str(findings))
                     if advertName is not None:
                         foundListingsDictionary[advertName.group(1)] = str(advertURL.group(1))
+            # If there are no items in the blocklist:
             else:
                 advertName = regexName.search(str(findings))
                 advertURL = regexURL.search(str(findings))
@@ -111,7 +113,7 @@ def update(show_notification=True):
         newListingsDictionary = {}
         # Reads all the previous found listings
         file = open(os.path.join(path, "output.txt"), "r+")
-        previousListings = file.read()
+        previousListings = file.readlines()
         first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
         if first_install:
             print("FIRST INSTALL")
@@ -133,12 +135,15 @@ def update(show_notification=True):
                 print("multiple new listings")
                 if show_notification:
                     send_notification("CamAlert", "Multiple new listings")
+            # There's 1 new listing
             else:
                 print("1 new listing")
                 if show_notification:
                     send_notification("CamAlert", list(newListingsDictionary.keys())[0])
+        # There are no new listings
         elif not first_install:
             print("NO NEW LISTINGS FOUND")
+        # It's the first install of the app, display an alert
         else:
             rumps.alert(title="CamAlert",
                         message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
@@ -164,6 +169,7 @@ def manual_update():
     file.close()
 
 
+# Clears the output and URLs file
 def reset_camalert():
     open(os.path.join(path, "output.txt"), 'w').close()
     open(os.path.join(path, "URLs.txt"), 'w').close()
@@ -174,7 +180,7 @@ def open_blocklist():
     subprocess.call(['open', '-a', 'TextEdit', os.path.join(path, "blocklist.txt")])
 
 
-# Run function every 60 seconds
+# Run update function every 60 seconds
 def every(delay):
     next_time = time.time() + delay
     while True:
