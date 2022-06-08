@@ -83,8 +83,9 @@ def update(show_notification=True):
         text = list(parent)
         for index, item in enumerate(text):
             text[index] = item.encode('utf-8')
-        dictionary = {}
+        foundListingsDictionary = {}
         regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
+        regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
         blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
         blocklist_lines = blocklist_file.readlines()
         for findings in text:
@@ -98,45 +99,44 @@ def update(show_notification=True):
                         print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
                 if not blocked:
                     advertName = regexName.search(str(findings))
+                    advertURL = regexURL.search(str(findings))
                     if advertName is not None:
-                        dictionary[advertName.group(1)] = str(findings)
+                        foundListingsDictionary[advertName.group(1)] = str(advertURL.group(1))
             else:
                 advertName = regexName.search(str(findings))
+                advertURL = regexURL.search(str(findings))
                 if advertName is not None:
-                    dictionary[advertName.group(1)] = str(findings)
+                    foundListingsDictionary[advertName.group(1)] = str(advertURL.group(1))
 
-        dictionaryNewListings = {}
+        newListingsDictionary = {}
         # Reads all the previous found listings
         file = open(os.path.join(path, "output.txt"), "r+")
-        data = file.read()
+        previousListings = file.read()
         first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
         if first_install:
             print("FIRST INSTALL")
         # Checks if the found listings are new listings that haven't been found yet
-        for key in dictionary:
-            if str(key) not in data:
+        for key in foundListingsDictionary:
+            if str(key) + ";URL:" + str(foundListingsDictionary[key]) not in previousListings:
                 print("NEW LISTING: " + str(key))
-                file.write(str(key) + "\n")
-                dictionaryNewListings[key] = dictionary[key]
+                file.write(str(key) + ";URL:" + str(foundListingsDictionary[key]) + "\n")
+                newListingsDictionary[key] = foundListingsDictionary[key]
         file.close()
-
         fileURLs = open(os.path.join(path, "URLs.txt"), "a+")
-        regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
         # Adds the URLs for the new listings to the URLs.txt file
-        for key in dictionaryNewListings:
-            advertURL = regexURL.search(str(dictionaryNewListings[key]))
-            fileURLs.write(str(advertURL.group(1)) + "\n")
+        for key in newListingsDictionary:
+            fileURLs.write(str(newListingsDictionary[key]) + "\n")
         fileURLs.close()
         # Displays a notification if there are new listings
-        if len(dictionaryNewListings) > 0 and not first_install:
-            if len(dictionaryNewListings) > 1:
+        if len(newListingsDictionary) > 0 and not first_install:
+            if len(newListingsDictionary) > 1:
                 print("multiple new listings")
                 if show_notification:
                     send_notification("CamAlert", "Multiple new listings")
             else:
                 print("1 new listing")
                 if show_notification:
-                    send_notification("CamAlert", list(dictionaryNewListings.keys())[0])
+                    send_notification("CamAlert", list(newListingsDictionary.keys())[0])
         elif not first_install:
             print("NO NEW LISTINGS FOUND")
         else:
