@@ -42,14 +42,14 @@ def send_notification(title, text):
 def open_listings():
     baseURL = "https://www.2dehands.be"
     fileURLs = open(os.path.join(path, "URLs.txt"), "r")
-    lines = fileURLs.readlines()
+    lines = fileURLs.read().splitlines()
     # Send notification if there are no new URLs
     if not lines:
         print("NO NEW LISTINGS")
         send_notification("CamAlert", "No new listings")
     else:
         for line in lines:
-            command = "open '" + baseURL + line.rstrip() + "'"
+            command = "open '" + baseURL + line + "'"
             os.system(command)
         fileURLs.close()
         # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
@@ -66,7 +66,7 @@ def check_connection():
     try:
         request = requests.get("https://www.2dehands.be", timeout=5)
     except (requests.ConnectionError, requests.Timeout) as exception:
-        print("CONNECTION ERROR")
+        print("CONNECTION ERROR: " + str(exception))
         send_notification("CamAlert", "Connection error")
         return False
     return True
@@ -88,14 +88,14 @@ def update(show_notification=True):
         regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
         regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
         blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
-        blocklist_lines = blocklist_file.readlines()
+        blocklist_lines = blocklist_file.read().splitlines()
         # Make a dictionary with the advert name as key and the URL as value
         for findings in text:
             blocked = False
             # Removes findings that are in the blocklist if there are any items in the blocklist
             if len(blocklist_lines) > 3:
                 for line in blocklist_lines:
-                    if line[0] != "#" and line.lower().rstrip() in str(findings).lower():
+                    if line[0] != "#" and line.lower() in str(findings).lower():
                         blocked = True
                         print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
                 if not blocked:
@@ -113,7 +113,8 @@ def update(show_notification=True):
         newListingsDictionary = {}
         # Reads all the previous found listings
         file = open(os.path.join(path, "output.txt"), "r+")
-        previousListings = file.readlines()
+        previousListings = file.read().splitlines()
+        print(str(previousListings))
         first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
         if first_install:
             print("FIRST INSTALL")
@@ -158,7 +159,7 @@ def update(show_notification=True):
 def manual_update():
     update(False)
     file = open(os.path.join(path, "URLs.txt"), "r+")
-    data = file.readlines()
+    data = file.read().splitlines()
     print("len(data) = " + str(len(data)))
     if len(data) == 1:
         send_notification("CamAlert", "1 new listing")
