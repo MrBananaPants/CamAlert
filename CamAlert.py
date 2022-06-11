@@ -1,3 +1,4 @@
+import http.client as httplib
 import os
 import re
 import subprocess
@@ -63,13 +64,16 @@ def clear_url():
 
 
 def check_connection():
+    connection = httplib.HTTPConnection("www.2dehands.be", timeout=3)
     try:
-        request = requests.get("https://www.2dehands.be", timeout=5)
-    except (requests.ConnectionError, requests.Timeout) as exception:
-        print("CONNECTION ERROR: " + str(exception))
-        send_notification("CamAlert", "Connection error")
+        # only header requested for fast operation
+        connection.request("HEAD", "/")
+        connection.close()
+        print("Internet On")
+        return True
+    except Exception as exep:
+        print(exep)
         return False
-    return True
 
 
 # Update the results to check for new listings
