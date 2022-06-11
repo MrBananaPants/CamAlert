@@ -44,17 +44,25 @@ def open_listings():
     baseURL = "https://www.2dehands.be"
     fileURLs = open(os.path.join(path, "URLs.txt"), "r")
     lines = fileURLs.read().splitlines()
+    fileURLs.close()
     # Send notification if there are no new URLs
     if not lines:
         print("NO NEW LISTINGS")
         send_notification("CamAlert", "No new listings")
     else:
-        for line in lines:
-            command = "open '" + baseURL + line + "'"
-            os.system(command)
-        fileURLs.close()
-        # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
-        open(os.path.join(path, "URLs.txt"), 'w').close()
+        if len(lines) >= 10:
+            if rumps.alert(title="CamAlert", message=f'{len(lines)} tabs will be opened. Do you want to continue?', ok=None, cancel=True) == 1:
+                for line in lines:
+                    command = "open '" + baseURL + line + "'"
+                    os.system(command)
+                    # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
+                    open(os.path.join(path, "URLs.txt"), 'w').close()
+        else:
+            for line in lines:
+                command = "open '" + baseURL + line + "'"
+                os.system(command)
+                # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
+                open(os.path.join(path, "URLs.txt"), 'w').close()
 
 
 # Function the clear all the URLs in URLs.txt
