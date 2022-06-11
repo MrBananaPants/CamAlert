@@ -9,6 +9,7 @@ Beautiful Soup is used as HTML parser and [rumps](https://github.com/jaredks/rum
     <img src="media/Screenshot notification.png" height="125"/>
 </div>
 
+In the future when the app is complete without bugs, the app might become universal for all types of listings (so not just for analog cameras). Users will have to choice to use their own category of listings they want notifications for. The app will most likely also change names when this happens.
 # Features
 - Background check for new listings every 60 seconds
 - Sends system notification with listing title if it finds a new listing
