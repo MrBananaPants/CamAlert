@@ -72,7 +72,7 @@ def clear_url():
 
 
 def check_connection():
-    connection = httplib.HTTPConnection("www.2dehands.be", timeout=3)
+    connection = httplib.HTTPConnection("www.2dehands.be", timeout=7)
     try:
         # only header requested for fast operation
         connection.request("HEAD", "/")
@@ -126,7 +126,6 @@ def update(show_notification=True):
         # Reads all the previous found listings
         file = open(os.path.join(path, "output.txt"), "r+")
         previousListings = file.read().splitlines()
-        print(str(previousListings))
         first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
         if first_install:
             print("FIRST INSTALL")
