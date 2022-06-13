@@ -1,5 +1,5 @@
 # CamAlert
-A Python 3 app that sends a notification if there's a new analog camera available on 2dehands (the Ebay of Belgium).
+A Python 3 app that sends a notification if there's a new analog camera available on 2dehands (the eBay of Belgium).
 The app runs in the background on macOS and sends a system notification if it sees a new deal is available.
 [rumps](https://github.com/jaredks/rumps) is used to make the status bar app and send the notifications.
 
