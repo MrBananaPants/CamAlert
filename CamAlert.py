@@ -117,22 +117,19 @@ def update(show_notification=True):
 
         newListingsDictionary = {}
         # Reads all the previous found listings
-        file = open(os.path.join(path, "output.txt"), "r+", encoding='utf-8')
-        previousListings = file.read().splitlines()
+        fileOutput = open(os.path.join(path, "output.txt"), "r+", encoding='utf-8')
+        fileURLs = open(os.path.join(path, "URLs.txt"), "a+", encoding='utf-8')
+        previousListings = fileOutput.read().splitlines()
+        # Check if it is the first time the application is run
         first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
-        if first_install:
-            print("FIRST INSTALL")
         # Checks if the found listings are new listings that haven't been found yet
         for key in foundListingsDictionary:
             if foundListingsDictionary[key].decode('utf-8') not in previousListings:
                 print("NEW LISTING: " + json.loads(key)["title"])
-                file.write(foundListingsDictionary[key].decode('utf-8') + "\n")
+                fileOutput.write(foundListingsDictionary[key].decode('utf-8') + "\n")
+                fileURLs.write(foundListingsDictionary[key].decode('utf-8') + "\n")
                 newListingsDictionary[key] = foundListingsDictionary[key]
-        file.close()
-        fileURLs = open(os.path.join(path, "URLs.txt"), "a+", encoding='utf-8')
-        # Adds the URLs for the new listings to the URLs.txt file
-        for key in newListingsDictionary:
-            fileURLs.write(newListingsDictionary[key].decode('utf-8') + "\n")
+        fileOutput.close()
         fileURLs.close()
         # Displays a notification if there are new listings
         if len(newListingsDictionary) > 0 and not first_install:
