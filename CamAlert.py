@@ -1,6 +1,6 @@
 import http.client as httplib
+import json
 import os
-import re
 import subprocess
 import threading
 import time
@@ -9,7 +9,6 @@ from pathlib import Path
 
 import requests
 import rumps
-from bs4 import BeautifulSoup
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
 
@@ -88,58 +87,52 @@ def check_connection():
 def update(show_notification=True):
     print("UPDATING RESULTS...")
     if check_connection():
-        source = requests.get(
-            "https://www.2dehands.be/l/audio-tv-en-foto/fotocamera-s-analoog/#Language:all-languages|sortBy:SORT_INDEX|sortOrder:DECREASING|view:gallery-view").text
-        soup = BeautifulSoup(source, 'lxml')
-        # Finds all the listings on the first page
-        parent = soup.find("div", {"class": "mp-Page-element mp-Page-element--main"}).find("ul")
-        text = list(parent)
-        for index, item in enumerate(text):
-            text[index] = item.encode('utf-8')
         foundListingsDictionary = {}
-        regexName = re.compile("<h3 class=\"mp-Listing-title\">(.*)</h3>")
-        regexURL = re.compile("href=\"(.*)\"><figure class=\"mp-Listing-image-container\"")
+        numberOfListings = 50
+        source = requests.get(
+            f"https://www.2dehands.be/lrp/api/search?attributesByKey\\[\\]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit={numberOfListings}&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view").text
+        source = json.loads(source)
+        listings = source["listings"]
         blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
         blocklist_lines = blocklist_file.read().splitlines()
         # Make a dictionary with the advert name as key and the URL as value
-        for findings in text:
+        for listing in listings:
+            listing = listing
             blocked = False
             # Removes findings that are in the blocklist if there are any items in the blocklist
             if len(blocklist_lines) > 3:
                 for line in blocklist_lines:
-                    if line[0] != "#" and line.lower() in str(findings).lower():
+                    if line[0] != "#" and line.lower() in str(listing).lower():
                         blocked = True
                         print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
                 if not blocked:
-                    advertName = regexName.search(str(findings))
-                    advertURL = regexURL.search(str(findings))
-                    if advertName is not None:
-                        foundListingsDictionary[advertName.group(1)] = str(advertURL.group(1))
+                    advertName = listing["title"].encode('utf-8')
+                    advertURL = listing["vipUrl"].encode('utf-8')
+                    foundListingsDictionary[advertName] = advertURL
             # If there are no items in the blocklist:
             else:
-                advertName = regexName.search(str(findings))
-                advertURL = regexURL.search(str(findings))
-                if advertName is not None:
-                    foundListingsDictionary[advertName.group(1)] = str(advertURL.group(1))
+                advertName = listing["title"].encode('utf-8')
+                advertURL = listing["vipUrl"].encode('utf-8')
+                foundListingsDictionary[advertName] = advertURL
 
         newListingsDictionary = {}
         # Reads all the previous found listings
-        file = open(os.path.join(path, "output.txt"), "r+")
+        file = open(os.path.join(path, "output.txt"), "r+", encoding='utf-8')
         previousListings = file.read().splitlines()
         first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
         if first_install:
             print("FIRST INSTALL")
         # Checks if the found listings are new listings that haven't been found yet
         for key in foundListingsDictionary:
-            if str(key) + ";URL:" + str(foundListingsDictionary[key]) not in previousListings:
-                print("NEW LISTING: " + str(key))
-                file.write(str(key) + ";URL:" + str(foundListingsDictionary[key]) + "\n")
+            if foundListingsDictionary[key].decode('utf-8') not in previousListings:
+                print("NEW LISTING: " + key.decode('utf-8'))
+                file.write(foundListingsDictionary[key].decode('utf-8') + "\n")
                 newListingsDictionary[key] = foundListingsDictionary[key]
         file.close()
-        fileURLs = open(os.path.join(path, "URLs.txt"), "a+")
+        fileURLs = open(os.path.join(path, "URLs.txt"), "a+", encoding='utf-8')
         # Adds the URLs for the new listings to the URLs.txt file
         for key in newListingsDictionary:
-            fileURLs.write(str(newListingsDictionary[key]) + "\n")
+            fileURLs.write(newListingsDictionary[key].decode('utf-8') + "\n")
         fileURLs.close()
         # Displays a notification if there are new listings
         if len(newListingsDictionary) > 0 and not first_install:
@@ -151,7 +144,7 @@ def update(show_notification=True):
             else:
                 print("1 new listing")
                 if show_notification:
-                    send_notification("CamAlert", list(newListingsDictionary.keys())[0])
+                    send_notification("CamAlert", list(newListingsDictionary.keys())[0].decode('utf-8'))
         # There are no new listings
         elif not first_install:
             print("NO NEW LISTINGS FOUND")
