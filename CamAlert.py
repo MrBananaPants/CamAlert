@@ -106,14 +106,14 @@ def update(show_notification=True):
                         blocked = True
                         print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
                 if not blocked:
-                    advertName = listing["title"].encode('utf-8')
+                    advertDetails = listing
                     advertURL = listing["vipUrl"].encode('utf-8')
-                    foundListingsDictionary[advertName] = advertURL
+                    foundListingsDictionary[json.dumps(advertDetails)] = advertURL
             # If there are no items in the blocklist:
             else:
-                advertName = listing["title"].encode('utf-8')
+                advertDetails = listing
                 advertURL = listing["vipUrl"].encode('utf-8')
-                foundListingsDictionary[advertName] = advertURL
+                foundListingsDictionary[json.dumps(advertDetails)] = advertURL
 
         newListingsDictionary = {}
         # Reads all the previous found listings
@@ -125,7 +125,7 @@ def update(show_notification=True):
         # Checks if the found listings are new listings that haven't been found yet
         for key in foundListingsDictionary:
             if foundListingsDictionary[key].decode('utf-8') not in previousListings:
-                print("NEW LISTING: " + key.decode('utf-8'))
+                print("NEW LISTING: " + json.loads(key)["title"])
                 file.write(foundListingsDictionary[key].decode('utf-8') + "\n")
                 newListingsDictionary[key] = foundListingsDictionary[key]
         file.close()
@@ -141,10 +141,27 @@ def update(show_notification=True):
                 if show_notification:
                     send_notification("CamAlert", "Multiple new listings")
             # There's 1 new listing
+            # Show the name of the listing in the notification + the price
             else:
                 print("1 new listing")
                 if show_notification:
-                    send_notification("CamAlert", list(newListingsDictionary.keys())[0].decode('utf-8'))
+                    priceType = json.loads(list(newListingsDictionary.keys())[0])["priceInfo"]["priceType"]
+                    price = None
+                    if priceType == "FIXED" or priceType == "MIN_BID":
+                        priceCents = str(json.loads(list(newListingsDictionary.keys())[0])["priceInfo"]["priceCents"])
+                        if priceCents[-2::] == "00":
+                            price = "€" + priceCents[:-2]
+                        else:
+                            price = "€" + priceCents[:-2] + "," + priceCents[-2::]
+                    elif priceType == "SEE_DESCRIPTION":
+                        price = "see description"
+                    elif priceType == "RESERVERD":
+                        price = "reserved"
+                    elif priceType == "NOTK":
+                        price = "to be agreed upon"
+                    elif priceType == "FAST_BID":
+                        price = "bid"
+                    send_notification("CamAlert", json.loads(list(newListingsDictionary.keys())[0])["title"] + "\n" + "Price: " + price)
         # There are no new listings
         elif not first_install:
             print("NO NEW LISTINGS FOUND")
