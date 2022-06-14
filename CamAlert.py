@@ -137,54 +137,54 @@ def new_listings(listings):
 
 def update_notification(dictionary):
     # Displays a notification if there are new listings
-    first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
-    if not first_install:
-        if len(dictionary) > 0:
-            # There are multiple new listings
-            if len(dictionary) > 1:
-                print("multiple new listings")
-                send_notification("CamAlert", "Multiple new listings")
-            # There's 1 new listing
-            # Show the name of the listing in the notification + the price
-            else:
-                print("1 new listing")
-                priceType = json.loads(list(dictionary.keys())[0])["priceInfo"]["priceType"]
-                price = None
-                if priceType == "FIXED" or priceType == "MIN_BID":
-                    priceCents = str(json.loads(list(dictionary.keys())[0])["priceInfo"]["priceCents"])
-                    if priceCents[-2::] == "00":
-                        price = "€" + priceCents[:-2]
-                    else:
-                        price = "€" + priceCents[:-2] + "," + priceCents[-2::]
-                elif priceType == "SEE_DESCRIPTION":
-                    price = "see description"
-                elif priceType == "RESERVERD":
-                    price = "reserved"
-                elif priceType == "NOTK":
-                    price = "to be agreed upon"
-                elif priceType == "FAST_BID":
-                    price = "bid"
-                send_notification("CamAlert", json.loads(list(dictionary.keys())[0])["title"] + "\n" + "Price: " + price)
+
+    if len(dictionary) > 0:
+        # There are multiple new listings
+        if len(dictionary) > 1:
+            print("multiple new listings")
+            send_notification("CamAlert", "Multiple new listings")
+        # There's 1 new listing
+        # Show the name of the listing in the notification + the price
+        else:
+            print("1 new listing")
+            priceType = json.loads(list(dictionary.keys())[0])["priceInfo"]["priceType"]
+            price = None
+            if priceType == "FIXED" or priceType == "MIN_BID":
+                priceCents = str(json.loads(list(dictionary.keys())[0])["priceInfo"]["priceCents"])
+                if priceCents[-2::] == "00":
+                    price = "€" + priceCents[:-2]
+                else:
+                    price = "€" + priceCents[:-2] + "," + priceCents[-2::]
+            elif priceType == "SEE_DESCRIPTION":
+                price = "see description"
+            elif priceType == "RESERVERD":
+                price = "reserved"
+            elif priceType == "NOTK":
+                price = "to be agreed upon"
+            elif priceType == "FAST_BID":
+                price = "bid"
+            send_notification("CamAlert", json.loads(list(dictionary.keys())[0])["title"] + "\n" + "Price: " + price)
     # There are no new listings
-    elif not first_install:
-        print("NO NEW LISTINGS FOUND")
-    # It's the first install of the app, display an alert
     else:
-        rumps.alert(title="CamAlert",
-                    message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
-                    ok=None, cancel=None)
-        clear_url()
+        print("NO NEW LISTINGS FOUND")
 
 
 # Update the results to check for new listings
 def update(show_notification=True):
     print("UPDATING RESULTS...")
     if check_connection():
+        first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
         listings = get_listings()
         foundListingsDictionary = blocklist_filter(listings)
         newListingsDictionary = new_listings(foundListingsDictionary)
-        if show_notification:
+        if show_notification and not first_install:
             update_notification(newListingsDictionary)
+        elif first_install:
+            # It's the first install of the app, display an alert
+            rumps.alert(title="CamAlert",
+                        message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
+                        ok=None, cancel=None)
+            clear_url()
         print("RESULTS UPDATED")
 
 
@@ -266,5 +266,5 @@ class StatusBar(rumps.App):
 threading.Thread(target=lambda: every(60)).start()
 # Do an initial check for new listings when the app starts and start the menu bar app
 check_files()
-StatusBar().run()
 update()
+StatusBar().run()
