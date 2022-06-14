@@ -92,29 +92,25 @@ def get_listings():
 
 
 def blocklist_filter(listings):
-    foundListingsDictionary = {}
-    blocklist_file = open(os.path.join(path, "blocklist.txt"), "r")
-    blocklist_lines = blocklist_file.read().splitlines()
+    notBlockedListings = {}
+    blocklistItems = []
+    # Get the blocklist items
+    with open(os.path.join(path, "blocklist.txt"), "r") as blocklist_file:
+        for i in range(3):
+            next(blocklist_file)
+        for line in blocklist_file:
+            blocklistItems.append(line.rstrip().lower())
     # Make a dictionary with the advert name as key and the URL as value
     for listing in listings:
-        listing = listing
-        blocked = False
-        # Removes findings that are in the blocklist if there are any items in the blocklist
-        if len(blocklist_lines) > 3:
-            for line in blocklist_lines:
-                if line[0] != "#" and line.lower() in str(listing).lower():
-                    blocked = True
-                    print("LISTING BLOCKED BECAUSE OF BLOCKLIST WORD: " + line.lower())
-            if not blocked:
+        for blocklistItem in blocklistItems:
+            # Removes findings that are in the blocklist if there are any items in the blocklist
+            if blocklistItem not in str(listing).lower():
                 advertDetails = listing
                 advertURL = listing["vipUrl"].encode('utf-8')
-                foundListingsDictionary[json.dumps(advertDetails)] = advertURL
-        # If there are no items in the blocklist:
-        else:
-            advertDetails = listing
-            advertURL = listing["vipUrl"].encode('utf-8')
-            foundListingsDictionary[json.dumps(advertDetails)] = advertURL
-    return foundListingsDictionary
+                notBlockedListings[json.dumps(advertDetails)] = advertURL
+            else:
+                print(f"BLOCKED LISTING ({blocklistItem}): {listing['title']}")
+    return notBlockedListings
 
 
 def new_listings(listings):
