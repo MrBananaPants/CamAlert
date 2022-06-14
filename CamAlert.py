@@ -122,7 +122,7 @@ def new_listings(listings):
     # Reads all the previous found listings
     fileOutput = open(os.path.join(path, "output.txt"), "r+", encoding='utf-8')
     fileURLs = open(os.path.join(path, "URLs.txt"), "a+", encoding='utf-8')
-    previousListings = fileOutput.read().splitlines()
+    previousListings = set(fileOutput.read().splitlines())
     # Checks if the found listings are new listings that haven't been found yet
     for key in listings:
         if listings[key].decode('utf-8') not in previousListings:
