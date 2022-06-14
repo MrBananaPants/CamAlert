@@ -84,51 +84,51 @@ def check_connection():
 
 
 def get_listings():
-    numberOfListings = 50
+    number_of_listings = 50
     source = requests.get(
-        f"https://www.2dehands.be/lrp/api/search?attributesByKey\\[\\]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit={numberOfListings}&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view").text
+        f"https://www.2dehands.be/lrp/api/search?attributesByKey\\[\\]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit={number_of_listings}&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view").text
     source = json.loads(source)
     return source["listings"]
 
 
 def blocklist_filter(listings):
-    notBlockedListings = {}
-    blocklistItems = []
+    not_blocked_listings = {}
+    blocklist_items = []
     # Get the blocklist items
     with open(os.path.join(path, "blocklist.txt"), "r") as blocklist_file:
         for i in range(3):
             next(blocklist_file)
         for line in blocklist_file:
-            blocklistItems.append(line.rstrip().lower())
+            blocklist_items.append(line.rstrip().lower())
     # Make a dictionary with the advert name as key and the URL as value
     for listing in listings:
-        for blocklistItem in blocklistItems:
+        for blocklist_item in blocklist_items:
             # Removes findings that are in the blocklist if there are any items in the blocklist
-            if blocklistItem not in str(listing).lower():
-                advertDetails = listing
-                advertURL = listing["vipUrl"].encode('utf-8')
-                notBlockedListings[json.dumps(advertDetails)] = advertURL
+            if blocklist_item not in str(listing).lower():
+                listing_details = listing
+                advert_url = listing["vipUrl"].encode('utf-8')
+                not_blocked_listings[json.dumps(listing_details)] = advert_url
             else:
-                print(f"BLOCKED LISTING ({blocklistItem}): {listing['title']}")
-    return notBlockedListings
+                print(f"BLOCKED LISTING ({blocklist_item}): {listing['title']}")
+    return not_blocked_listings
 
 
 def new_listings(listings):
-    newListingsDictionary = {}
+    new_listings_dictionary = {}
     # Reads all the previous found listings
-    fileOutput = open(os.path.join(path, "output.txt"), "r+", encoding='utf-8')
-    fileURLs = open(os.path.join(path, "URLs.txt"), "a+", encoding='utf-8')
-    previousListings = set(fileOutput.read().splitlines())
+    file_output = open(os.path.join(path, "output.txt"), "r+", encoding='utf-8')
+    file_urls = open(os.path.join(path, "URLs.txt"), "a+", encoding='utf-8')
+    previous_listings = set(file_output.read().splitlines())
     # Checks if the found listings are new listings that haven't been found yet
     for key in listings:
-        if listings[key].decode('utf-8') not in previousListings:
+        if listings[key].decode('utf-8') not in previous_listings:
             print("NEW LISTING: " + json.loads(key)["title"])
-            fileOutput.write(listings[key].decode('utf-8') + "\n")
-            fileURLs.write(listings[key].decode('utf-8') + "\n")
-            newListingsDictionary[key] = listings[key]
-    fileOutput.close()
-    fileURLs.close()
-    return newListingsDictionary
+            file_output.write(listings[key].decode('utf-8') + "\n")
+            file_urls.write(listings[key].decode('utf-8') + "\n")
+            new_listings_dictionary[key] = listings[key]
+    file_output.close()
+    file_urls.close()
+    return new_listings_dictionary
 
 
 def update_notification(dictionary):
@@ -143,21 +143,21 @@ def update_notification(dictionary):
         # Show the name of the listing in the notification + the price
         else:
             print("1 new listing")
-            priceType = json.loads(list(dictionary.keys())[0])["priceInfo"]["priceType"]
+            price_type = json.loads(list(dictionary.keys())[0])["priceInfo"]["priceType"]
             price = None
-            if priceType == "FIXED" or priceType == "MIN_BID":
-                priceCents = str(json.loads(list(dictionary.keys())[0])["priceInfo"]["priceCents"])
-                if priceCents[-2::] == "00":
-                    price = "€" + priceCents[:-2]
+            if price_type == "FIXED" or price_type == "MIN_BID":
+                price_cents = str(json.loads(list(dictionary.keys())[0])["priceInfo"]["priceCents"])
+                if price_cents[-2::] == "00":
+                    price = "€" + price_cents[:-2]
                 else:
-                    price = "€" + priceCents[:-2] + "," + priceCents[-2::]
-            elif priceType == "SEE_DESCRIPTION":
+                    price = "€" + price_cents[:-2] + "," + price_cents[-2::]
+            elif price_type == "SEE_DESCRIPTION":
                 price = "see description"
-            elif priceType == "RESERVERD":
+            elif price_type == "RESERVERD":
                 price = "reserved"
-            elif priceType == "NOTK":
+            elif price_type == "NOTK":
                 price = "to be agreed upon"
-            elif priceType == "FAST_BID":
+            elif price_type == "FAST_BID":
                 price = "bid"
             send_notification("CamAlert", json.loads(list(dictionary.keys())[0])["title"] + "\n" + "Price: " + price)
     # There are no new listings
@@ -171,10 +171,10 @@ def update(show_notification=True):
     if check_connection():
         first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
         listings = get_listings()
-        foundListingsDictionary = blocklist_filter(listings)
-        newListingsDictionary = new_listings(foundListingsDictionary)
+        found_listings_dictionary = blocklist_filter(listings)
+        new_listings_dictionary = new_listings(found_listings_dictionary)
         if show_notification and not first_install:
-            update_notification(newListingsDictionary)
+            update_notification(new_listings_dictionary)
         elif first_install:
             # It's the first install of the app, display an alert
             rumps.alert(title="CamAlert",
