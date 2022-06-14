@@ -258,9 +258,10 @@ class StatusBar(rumps.App):
         open_listings()
 
 
-# Start the loop (with 60 seconds interval)
-threading.Thread(target=lambda: every(60)).start()
-# Do an initial check for new listings when the app starts and start the menu bar app
-check_files()
-update()
-StatusBar().run()
+if __name__ == '__main__':
+    # Start the loop (with 60 seconds interval)
+    threading.Thread(target=lambda: every(60)).start()
+    # Do an initial check for new listings when the app starts and start the menu bar app
+    check_files()
+    update()
+    StatusBar().run()
