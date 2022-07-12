@@ -12,17 +12,17 @@ The app runs in the background on macOS and sends a system notification if it se
 In the future when the app is complete without bugs, the app might become universal for all types of listings (so not just for analog cameras). Users will have to choice to use their own category of listings they want notifications for. The app will most likely also change names when this happens.
 # Features
 - Background check for new listings every 60 seconds
-- Sends system notification with listing title if it finds a new listing
+- Sends system notification with listing title and price if it finds a new listing
 - Clicking the notification will open all new listings
 - Status bar menu with following options:
   - Open all new listings (in the default browser)
-  - Clear all new listings (in case you haven't used the app in a while and don't want it to open 50+ Chrome tabs)
+  - Clear all new listings (in case you haven't used the app in a while and don't want it to open 50+ tabs)
   - Manual check for new listings
   - Blocklist to block certain words or sellers
   - Reset
   - Quit the application
-
-The app checks the 50 most recent listings for new listings. If you want to increase or decrease this value, you can do so by changing the `numberOfListings` variable in the `update()` function.
+- Show an alert if more than 10 listings will be opened so the user can cancel this action
+The app checks the 100 most recent listings for new listings. If you want to decrease this value, you can do so by changing the `numberOfListings` variable in the `update()` function.
 
 # Requirements to build
 You need `py2app` to compile the app yourself.
