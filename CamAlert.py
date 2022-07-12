@@ -92,7 +92,7 @@ def check_connection():
 
 
 def get_listings():
-    number_of_listings = 50
+    number_of_listings = 100
     source = requests.get(
         f"https://www.2dehands.be/lrp/api/search?attributesByKey\\[\\]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit={number_of_listings}&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view").text
     source = json.loads(source)
