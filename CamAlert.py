@@ -49,7 +49,7 @@ def open_listings():
         print("NO NEW LISTINGS")
         send_notification("CamAlert", "No new listings")
     else:
-        if len(lines) >= 10:
+        if len(lines) > 10:
             if rumps.alert(title="CamAlert", message=f'{len(lines)} tabs will be opened. Do you want to continue?', ok=None, cancel=True) == 1:
                 for line in lines:
                     command = "open '" + baseURL + line + "'"
