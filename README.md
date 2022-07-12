@@ -22,6 +22,7 @@ In the future when the app is complete without bugs, the app might become univer
   - Reset
   - Quit the application
 - Show an alert if more than 10 listings will be opened so the user can cancel this action
+
 The app checks the 100 most recent listings for new listings. If you want to decrease this value, you can do so by changing the `numberOfListings` variable in the `update()` function.
 
 # Requirements to build
