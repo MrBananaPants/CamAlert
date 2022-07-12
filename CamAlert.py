@@ -56,6 +56,14 @@ def open_listings():
                     os.system(command)
                     # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
                     open(os.path.join(path, "URLs.txt"), 'w').close()
+            # User pressed cancel on alert
+            else:
+                if rumps.alert(title="CamAlert", message=f'Open only 10 most recent instead of all {len(lines)} listings?', ok=None, cancel=True) == 1:
+                    for i in range(0, 10):
+                        command = "open '" + baseURL + lines[i] + "'"
+                        os.system(command)
+                        # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
+                        open(os.path.join(path, "URLs.txt"), 'w').close()
         else:
             for line in lines:
                 command = "open '" + baseURL + line + "'"
