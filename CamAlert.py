@@ -4,12 +4,14 @@ import os
 import subprocess
 import threading
 import time
+import urllib.request
 from pathlib import Path
 
 import requests
 import rumps
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
+version = "0.4.0"
 
 
 def check_files():
@@ -150,7 +152,6 @@ def new_listings(listings):
 
 def update_notification(dictionary):
     # Displays a notification if there are new listings
-
     if len(dictionary) > 0:
         # There are multiple new listings
         if len(dictionary) > 1:
@@ -231,6 +232,17 @@ def open_blocklist():
 
 def check_updates():
     print("CHECKING FOR UPDATES")
+    tag = os.popen('curl -sL https://api.github.com/repos/MrBananaPants/CamAlert/releases/latest').read()
+    tag = json.loads(tag)
+    latest_version = int(str(tag["tag_name"]).lstrip('0').replace(".", ""))
+    current_version = int(str(version).lstrip('0').replace(".", ""))
+
+    if latest_version > current_version:
+        if rumps.alert(title="CamAlert", message=f'A new version is available. Do you want to download it?', ok=None, cancel=True) == 1:
+            urllib.request.urlretrieve(tag["assets"][0]["browser_download_url"], str(os.path.join(os.getenv("HOME"), "Downloads/CamAlert.dmg")))
+            rumps.alert(title="CamAlert", message="The newest version has been downloaded to the Downloads folder", ok=None, cancel=None)
+    else:
+        rumps.alert(title="CamAlert", message="You already have the newest version installed.", ok=None, cancel=None)
 
 
 # Run update function every 60 seconds
