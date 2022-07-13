@@ -245,6 +245,10 @@ def check_updates():
         rumps.alert(title="CamAlert", message="You already have the newest version installed.", ok=None, cancel=None)
 
 
+def about():
+    rumps.alert(title="CamAlert", message=f"Developed by Joran Vancoillie\nversion: {version}", ok=None, cancel=None)
+
+
 # Run update function every 60 seconds
 def every(delay):
     next_time = time.time() + delay
@@ -257,7 +261,7 @@ def every(delay):
 class StatusBar(rumps.App):
     def __init__(self):
         super(StatusBar, self).__init__("CamAlert")
-        self.menu = ["Open new listings", "Clear new listings", None, "Manual update", None, ["Settings", ["Blocklist", "Reset", "Check for updates"]]]
+        self.menu = ["Open new listings", "Clear new listings", None, "Manual update", None, ["Settings", ["Blocklist", "Reset", "Check for updates", "About"]]]
 
     @rumps.clicked("Open new listings")
     def browser(self, _):
@@ -285,6 +289,10 @@ class StatusBar(rumps.App):
     @rumps.clicked("Settings", "Check for updates")
     def reset(self, _):
         check_updates()
+
+    @rumps.clicked("Settings", "About")
+    def reset(self, _):
+        about()
 
     @rumps.notifications
     def notifications(self, _):  # function that reacts to incoming notification dicts
