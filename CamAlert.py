@@ -94,8 +94,18 @@ def get_listings():
     number_of_listings = 100
     source = requests.get(
         f"https://www.2dehands.be/lrp/api/search?attributesByKey\\[\\]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit={number_of_listings}&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view").text
-    source = json.loads(source)
-    return source["listings"]
+    print(str(len(source)))
+    if len(source) == 161:
+        print("BAD REQUEST")
+        rumps.alert(title="CamAlert",
+                    message="You've made too many update request. Try again later. The app will close now.", ok=None, cancel=None)
+        # Get the pid of the CamAlert app
+        pid = os.popen("ps -ax | grep CamAlert | awk '{print $1}' | head -n 1").read()
+        # Kill the app
+        os.system(f'kill {pid}')
+    else:
+        source = json.loads(source)
+        return source["listings"]
 
 
 def blocklist_filter(listings):
@@ -188,7 +198,7 @@ def update(show_notification=True):
                         message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
                         ok=None, cancel=None)
             clear_url()
-        print("RESULTS UPDATED")
+    print("RESULTS UPDATED")
 
 
 # Manual update disables the notifications from update() because it checks if there are older unseen listings in the URLs.txt file
