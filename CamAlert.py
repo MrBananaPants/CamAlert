@@ -96,7 +96,6 @@ def get_listings():
     number_of_listings = 100
     source = requests.get(
         f"https://www.2dehands.be/lrp/api/search?attributesByKey\\[\\]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit={number_of_listings}&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view").text
-    print(str(len(source)))
     if len(source) == 161:
         print("BAD REQUEST")
         rumps.alert(title="CamAlert",
@@ -236,7 +235,6 @@ def check_updates():
     tag = json.loads(tag)
     latest_version = int(str(tag["tag_name"]).lstrip('0').replace(".", ""))
     current_version = int(str(version).lstrip('0').replace(".", ""))
-
     if latest_version > current_version:
         if rumps.alert(title="CamAlert", message=f'A new version is available. Do you want to download it?', ok=None, cancel=True) == 1:
             urllib.request.urlretrieve(tag["assets"][0]["browser_download_url"], str(os.path.join(os.getenv("HOME"), "Downloads/CamAlert.dmg")))
@@ -287,11 +285,11 @@ class StatusBar(rumps.App):
         update(False)
 
     @rumps.clicked("Settings", "Check for updates")
-    def reset(self, _):
+    def check_for_updates(self, _):
         check_updates()
 
     @rumps.clicked("Settings", "About")
-    def reset(self, _):
+    def about(self, _):
         about()
 
     @rumps.notifications
