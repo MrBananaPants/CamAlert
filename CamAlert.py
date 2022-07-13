@@ -52,7 +52,7 @@ def open_listings():
             if rumps.alert(title="CamAlert", message=f'{len(lines)} tabs will be opened. Do you want to continue?', ok=None, cancel=True) == 1:
                 for line in lines:
                     command = "open '" + baseURL + line + "'"
-                    os.system(command)
+                    os.popen(command)
                     # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
                     open(os.path.join(path, "URLs.txt"), 'w').close()
             # User pressed cancel on alert
@@ -60,13 +60,13 @@ def open_listings():
                 if rumps.alert(title="CamAlert", message=f'Open only 10 most recent instead of all {len(lines)} listings?', ok=None, cancel=True) == 1:
                     for i in range(0, 10):
                         command = "open '" + baseURL + lines[i] + "'"
-                        os.system(command)
+                        os.popen(command)
                         # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
                         open(os.path.join(path, "URLs.txt"), 'w').close()
         else:
             for line in lines:
                 command = "open '" + baseURL + line + "'"
-                os.system(command)
+                os.popen(command)
                 # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
                 open(os.path.join(path, "URLs.txt"), 'w').close()
 
@@ -102,7 +102,7 @@ def get_listings():
         # Get the pid of the CamAlert app
         pid = os.popen("ps -ax | grep CamAlert | awk '{print $1}' | head -n 1").read()
         # Kill the app
-        os.system(f'kill {pid}')
+        os.popen(f'kill {pid}')
     else:
         source = json.loads(source)
         return source["listings"]
