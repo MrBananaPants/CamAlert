@@ -102,7 +102,7 @@ def get_listings():
         # Get the pid of the CamAlert app
         pid = os.popen("ps -ax | grep CamAlert | awk '{print $1}' | head -n 1").read()
         # Kill the app
-        os.popen(f'kill {pid}')
+        os.system(f'kill {pid}')
     else:
         source = json.loads(source)
         return source["listings"]
@@ -229,6 +229,10 @@ def open_blocklist():
     subprocess.call(['open', '-a', 'TextEdit', os.path.join(path, "blocklist.txt")])
 
 
+def check_updates():
+    print("CHECKING FOR UPDATES")
+
+
 # Run update function every 60 seconds
 def every(delay):
     next_time = time.time() + delay
@@ -241,7 +245,7 @@ def every(delay):
 class StatusBar(rumps.App):
     def __init__(self):
         super(StatusBar, self).__init__("CamAlert")
-        self.menu = ["Open new listings", "Clear new listings", None, "Manual update", None, ["Settings", ["Blocklist", "Reset"]]]
+        self.menu = ["Open new listings", "Clear new listings", None, "Manual update", None, ["Settings", ["Blocklist", "Reset", "Check for updates"]]]
 
     @rumps.clicked("Open new listings")
     def browser(self, _):
@@ -265,6 +269,10 @@ class StatusBar(rumps.App):
         reset_camalert()
         check_files()
         update(False)
+
+    @rumps.clicked("Settings", "Check for updates")
+    def reset(self, _):
+        check_updates()
 
     @rumps.notifications
     def notifications(self, _):  # function that reacts to incoming notification dicts
