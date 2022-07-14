@@ -11,7 +11,7 @@ import requests
 import rumps
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
-version = "0.4.0"
+version = "0.5.0"
 
 
 def check_files():
