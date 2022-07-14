@@ -120,14 +120,17 @@ def blocklist_filter(listings):
             blocklist_items.append(line.rstrip().lower())
     # Make a dictionary with the advert name as key and the URL as value
     for listing in listings:
+
         for blocklist_item in blocklist_items:
             # Removes findings that are in the blocklist if there are any items in the blocklist
             if blocklist_item not in str(listing).lower():
-                listing_details = listing
                 advert_url = listing["vipUrl"].encode('utf-8')
-                not_blocked_listings[json.dumps(listing_details)] = advert_url
+                not_blocked_listings[json.dumps(listing)] = advert_url
             else:
                 print(f"BLOCKED LISTING ({blocklist_item}): {listing['title']}")
+                if json.dumps(listing) in not_blocked_listings:
+                    del not_blocked_listings[json.dumps(listing)]
+                break
     return not_blocked_listings
 
 
