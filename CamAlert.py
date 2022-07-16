@@ -188,19 +188,20 @@ def update_notification(dictionary):
 # Update the results to check for new listings
 def update(show_notification=True):
     print("UPDATING RESULTS...")
-    if check_connection():
-        first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
-        listings = get_listings()
-        found_listings_dictionary = blocklist_filter(listings)
-        new_listings_dictionary = new_listings(found_listings_dictionary)
-        if show_notification and not first_install:
-            update_notification(new_listings_dictionary)
-        elif first_install:
-            # It's the first install of the app, display an alert
-            rumps.alert(title="CamAlert",
-                        message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
-                        ok=None, cancel=None)
-            clear_url()
+    if not check_connection():
+        return
+    first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
+    listings = get_listings()
+    found_listings_dictionary = blocklist_filter(listings)
+    new_listings_dictionary = new_listings(found_listings_dictionary)
+    if show_notification and not first_install:
+        update_notification(new_listings_dictionary)
+    elif first_install:
+        # It's the first install of the app, display an alert
+        rumps.alert(title="CamAlert",
+                    message="Thank you for using CamAlert. The app will periodically check for new listings. If it finds one, it will send you a notification.",
+                    ok=None, cancel=None)
+        clear_url()
     print("RESULTS UPDATED")
 
 
