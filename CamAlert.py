@@ -239,7 +239,7 @@ def open_blocklist():
 
 def check_updates():
     print("CHECKING FOR UPDATES")
-    tag = os.popen('curl -sL https://api.github.com/repos/MrBananaPants/CamAlert/releases/latest').read()
+    tag = requests.get("https://api.github.com/repos/MrBananaPants/CamAlert/releases/latest").text
     tag = json.loads(tag)
     latest_version = int(str(tag["tag_name"]).lstrip('0').replace(".", ""))
     current_version = int(str(version).lstrip('0').replace(".", ""))
