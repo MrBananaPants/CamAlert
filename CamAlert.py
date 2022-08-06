@@ -247,7 +247,7 @@ def check_updates():
     latest_version = int(str(tag["tag_name"]).lstrip('0').replace(".", ""))
     current_version = int(str(version).lstrip('0').replace(".", ""))
     if latest_version > current_version:
-        if rumps.alert(title="CamAlert", message=f'A new version is available. Do you want to download it?', ok=None, cancel=True) == 1:
+        if rumps.alert(title="CamAlert", message=f'A new version is available (v{tag["tag_name"]}). Do you want to download it?', ok="Yes", cancel=True) == 1:
             urllib.request.urlretrieve(tag["assets"][0]["browser_download_url"], str(os.path.join(os.getenv("HOME"), "Downloads/CamAlert.dmg")))
             rumps.alert(title="CamAlert", message="The newest version has been downloaded to the Downloads folder", ok=None, cancel=None)
     else:
