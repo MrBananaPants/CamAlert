@@ -228,9 +228,12 @@ def manual_update():
 
 # Clears the output and URLs file
 def reset_camalert():
-    open(os.path.join(path, "output.txt"), 'w').close()
-    open(os.path.join(path, "URLs.txt"), 'w').close()
-    # open(os.path.join(path, "blocklist.txt"), 'w').close()
+    if rumps.alert(title="CamAlert", message=f'Are you sure you want to reset? This is only needed when experiencing unexpected issues', ok="Reset",
+                   cancel=True) == 1:
+        open(os.path.join(path, "output.txt"), 'w').close()
+        open(os.path.join(path, "URLs.txt"), 'w').close()
+        check_files()
+        update(False)
 
 
 def open_blocklist():
@@ -289,8 +292,6 @@ class StatusBar(rumps.App):
     @rumps.clicked("Settings", "Reset")
     def reset(self, _):
         reset_camalert()
-        check_files()
-        update(False)
 
     @rumps.clicked("Settings", "Check for updates")
     def check_for_updates(self, _):
