@@ -100,10 +100,8 @@ def get_listings():
         print("BAD REQUEST")
         rumps.alert(title="CamAlert",
                     message="You've made too many update request. Try again later. The app will close now.", ok=None, cancel=None)
-        # Get the pid of the CamAlert app
-        pid = os.popen("ps -ax | grep CamAlert | awk '{print $1}' | head -n 1").read()
         # Kill the app
-        os.system(f'kill {pid}')
+        os.system(f'kill {os.getpid()}')
     else:
         source = json.loads(source)
         return source["listings"]
