@@ -112,23 +112,29 @@ def blocklist_filter(listings):
     blocklist_items = []
     # Get the blocklist items
     with open(os.path.join(path, "blocklist.txt"), "r") as blocklist_file:
+        # Skip the first three lines of the blocklist file
         for i in range(3):
             next(blocklist_file)
+        # Make the remaining blocklist words lowercase
         for line in blocklist_file:
             blocklist_items.append(line.rstrip().lower())
     # Make a dictionary with the advert name as key and the URL as value
-    for listing in listings:
-
-        for blocklist_item in blocklist_items:
-            # Removes findings that are in the blocklist if there are any items in the blocklist
-            if blocklist_item not in str(listing).lower():
-                advert_url = listing["vipUrl"].encode('utf-8')
-                not_blocked_listings[json.dumps(listing)] = advert_url
-            else:
-                print(f"BLOCKED LISTING ({blocklist_item}): {listing['title']}")
-                if json.dumps(listing) in not_blocked_listings:
-                    del not_blocked_listings[json.dumps(listing)]
-                break
+    if len(blocklist_items) > 0:
+        for listing in listings:
+            for blocklist_item in blocklist_items:
+                # Removes findings that are in the blocklist if there are any items in the blocklist
+                if blocklist_item not in str(listing).lower():
+                    advert_url = listing["vipUrl"].encode('utf-8')
+                    not_blocked_listings[json.dumps(listing)] = advert_url
+                else:
+                    print(f"BLOCKED LISTING ({blocklist_item}): {listing['title']}")
+                    if json.dumps(listing) in not_blocked_listings:
+                        del not_blocked_listings[json.dumps(listing)]
+                    break
+    else:
+        for listing in listings:
+            advert_url = listing["vipUrl"].encode('utf-8')
+            not_blocked_listings[json.dumps(listing)] = advert_url
     return not_blocked_listings
 
 
