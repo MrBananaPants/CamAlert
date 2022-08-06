@@ -27,10 +27,9 @@ def check_files():
     blocklist_file = Path(os.path.join(path, "blocklist.txt"))
     blocklist_file.touch(exist_ok=True)
     if os.path.getsize(os.path.join(path, "blocklist.txt")) == 0:
-        file = open(os.path.join(path, "blocklist.txt"), "a")
-        file.write(
+        with open(os.path.join(path, "blocklist.txt"), "a") as file:
+            file.write(
             "#This is the blocklist\n#To block a certain seller, brand,... you can add the name here\n#Put every word on a new line (not case sensitive)")
-        file.close()
 
 
 # Send notification function
@@ -42,9 +41,8 @@ def send_notification(title, text):
 # Opens all the URLs in the URLs.txt file in the browser
 def open_listings():
     baseURL = "https://www.2dehands.be"
-    fileURLs = open(os.path.join(path, "URLs.txt"), "r")
-    lines = fileURLs.read().splitlines()
-    fileURLs.close()
+    with open(os.path.join(path, "URLs.txt"), "r") as fileURLs:
+        lines = fileURLs.read().splitlines()
     # Send notification if there are no new URLs
     if not lines:
         print("NO NEW LISTINGS")
@@ -214,8 +212,8 @@ def update(show_notification=True):
 # This makes sure the user won't get a notification saying there's 1 new listings but when he opens the new listings, it'll open more than 1 listing
 def manual_update():
     update(False)
-    file = open(os.path.join(path, "URLs.txt"), "r+")
-    data = file.read().splitlines()
+    with open(os.path.join(path, "URLs.txt"), "r+") as file:
+        data = file.read().splitlines()
     print("len(data) = " + str(len(data)))
     if len(data) == 1:
         send_notification("CamAlert", "1 new listing")
@@ -223,7 +221,6 @@ def manual_update():
         send_notification("CamAlert", "Multiple new listings")
     else:
         send_notification("CamAlert", "No new listings")
-    file.close()
 
 
 # Clears the output and URLs file
