@@ -160,7 +160,7 @@ def update_notification(dictionary):
         # There are multiple new listings
         if len(dictionary) > 1:
             print("multiple new listings")
-            send_notification("CamAlert", f"{len(dictionary)} new listings")
+            send_notification("CamAlert", f"Multiple new listings")
         # There's 1 new listing
         # Show the name of the listing in the notification + the price
         else:
