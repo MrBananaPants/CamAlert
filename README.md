@@ -20,6 +20,8 @@ In the future when the app is complete without bugs, the app might become univer
   - Manual check for new listings
   - Blocklist to block certain words or sellers
   - Reset
+  - Check for updates
+  - About info
   - Quit the application
 - Show an alert if more than 10 listings will be opened so the user can cancel this action
 
