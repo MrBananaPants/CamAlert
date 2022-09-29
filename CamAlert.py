@@ -5,6 +5,7 @@ import subprocess
 import threading
 import time
 import urllib.request
+import webbrowser
 from pathlib import Path
 
 import requests
@@ -241,12 +242,22 @@ def check_updates():
     print("CHECKING FOR UPDATES")
     tag = requests.get("https://api.github.com/repos/MrBananaPants/CamAlert/releases/latest").text
     tag = json.loads(tag)
+    if "API rate limit" in str(tag):
+        rumps.alert(title="PyFit", message="API rate limit exceeded, press OK to manually download the newest version", ok=None, cancel=None)
+        webbrowser.open('https://github.com/MrBananaPants/CamAlert/releases/latest', new=2)
+        return None
     latest_version = int(str(tag["tag_name"]).lstrip('0').replace(".", ""))
     current_version = int(str(version).lstrip('0').replace(".", ""))
     if latest_version > current_version:
+
         if rumps.alert(title="CamAlert", message=f'A new version is available (v{tag["tag_name"]}). Do you want to download it?', ok="Yes", cancel=True) == 1:
-            urllib.request.urlretrieve(tag["assets"][0]["browser_download_url"], str(os.path.join(os.getenv("HOME"), "Downloads/CamAlert.dmg")))
-            rumps.alert(title="CamAlert", message="The newest version has been downloaded to the Downloads folder", ok=None, cancel=None)
+            try:
+                urllib.request.urlretrieve(tag["assets"][0]["browser_download_url"], str(os.path.join(os.getenv("HOME"), "Downloads/CamAlert.dmg")))
+                rumps.alert(title="CamAlert", message="The newest version has been downloaded to the Downloads folder", ok=None, cancel=None)
+            except urllib.error.HTTPError:
+                rumps.alert(title="PyFit", message="Cannot download latest version. Press OK to manually download the newest version", ok=None, cancel=None)
+                webbrowser.open('https://github.com/MrBananaPants/CamAlert/releases/latest', new=2)
+
     else:
         rumps.alert(title="CamAlert", message="You already have the newest version installed.", ok=None, cancel=None)
 
