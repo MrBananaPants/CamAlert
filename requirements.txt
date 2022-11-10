@@ -1,6 +1,6 @@
-setuptools==65.4.0
+setuptools==65.5.1
 requests==2.28.1
 #Use the latest dev version of rumps because version 0.3.0 uses a direct import from collections for the class Mapping which should be imported it from collections.abc since python 3.3
-pyobjc==8.5.1
-pyobjc-core==8.5.1
+pyobjc==9.0
+pyobjc-core==9.0
 rumps~=0.4.0
