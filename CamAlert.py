@@ -30,7 +30,7 @@ def check_files():
     if os.path.getsize(os.path.join(path, "blocklist.txt")) == 0:
         with open(os.path.join(path, "blocklist.txt"), "a") as file:
             file.write(
-            "#This is the blocklist\n#To block a certain seller, brand,... you can add the name here\n#Put every word on a new line (not case sensitive)")
+                "#This is the blocklist\n#To block a certain seller, brand,... you can add the name here\n#Put every word on a new line (not case sensitive)")
 
 
 # Send notification function
@@ -176,7 +176,7 @@ def update_notification(dictionary):
                     price = "€" + price_cents[:-2] + "," + price_cents[-2::]
             elif price_type == "SEE_DESCRIPTION":
                 price = "see description"
-            elif price_type == "RESERVERD":
+            elif price_type == "RESERVED":
                 price = "reserved"
             elif price_type == "NOTK":
                 price = "to be agreed upon"
