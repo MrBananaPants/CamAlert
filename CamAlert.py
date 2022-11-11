@@ -49,27 +49,31 @@ def open_listings():
         print("NO NEW LISTINGS")
         send_notification("CamAlert", "No new listings")
     else:
+        lines.sort()
         if len(lines) > 10:
             if rumps.alert(title="CamAlert", message=f'{len(lines)} tabs will be opened. Do you want to continue?', ok=None, cancel=True) == 1:
                 for line in lines:
                     command = "open '" + baseURL + line + "'"
                     os.popen(command)
-                    # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
-                    open(os.path.join(path, "URLs.txt"), 'w').close()
+                    time.sleep(0.1)
+                # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
+                open(os.path.join(path, "URLs.txt"), 'w').close()
             # User pressed cancel on alert
             else:
                 if rumps.alert(title="CamAlert", message=f'Open only 10 most recent instead of all {len(lines)} listings?', ok=None, cancel=True) == 1:
-                    for i in range(0, 10):
+                    for i in range(len(lines) - 11, len(lines) - 1):
                         command = "open '" + baseURL + lines[i] + "'"
                         os.popen(command)
-                        # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
-                        open(os.path.join(path, "URLs.txt"), 'w').close()
+                        time.sleep(0.1)
+                    # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
+                    open(os.path.join(path, "URLs.txt"), 'w').close()
         else:
             for line in lines:
                 command = "open '" + baseURL + line + "'"
                 os.popen(command)
-                # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
-                open(os.path.join(path, "URLs.txt"), 'w').close()
+                time.sleep(0.1)
+            # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
+            open(os.path.join(path, "URLs.txt"), 'w').close()
 
 
 # Function the clear all the URLs in URLs.txt
