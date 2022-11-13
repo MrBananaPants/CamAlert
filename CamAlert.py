@@ -55,7 +55,7 @@ def open_listings():
                 for line in lines:
                     command = "open '" + baseURL + line + "'"
                     os.popen(command)
-                    time.sleep(0.1)
+                    time.sleep(0.3)
                 # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
                 open(os.path.join(path, "URLs.txt"), 'w').close()
             # User pressed cancel on alert
@@ -64,14 +64,14 @@ def open_listings():
                     for i in range(len(lines) - 11, len(lines) - 1):
                         command = "open '" + baseURL + lines[i] + "'"
                         os.popen(command)
-                        time.sleep(0.1)
+                        time.sleep(0.3)
                     # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
                     open(os.path.join(path, "URLs.txt"), 'w').close()
         else:
             for line in lines:
                 command = "open '" + baseURL + line + "'"
                 os.popen(command)
-                time.sleep(0.1)
+                time.sleep(0.3)
             # Clear the URLs.txt file when it's done (so the same listings won't be opened next time)
             open(os.path.join(path, "URLs.txt"), 'w').close()
 
