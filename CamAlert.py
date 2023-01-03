@@ -14,6 +14,9 @@ import rumps
 path = os.path.join(os.getenv("HOME"), "CamAlert")
 version = "0.5.0"
 
+url_list = [
+    "https://www.2dehands.be/lrp/api/search?attributesByKey[]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit=100&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view"]
+
 
 def check_files():
     # Check whether the specified path exists or not
@@ -35,7 +38,7 @@ def check_files():
 
 # Send notification function
 def send_notification(title, text):
-    print("Displaying notification")
+    print(f"Displaying notification: {title}, {text}")
     rumps.notification(title, None, text, data=None, sound=True)
 
 
@@ -95,10 +98,8 @@ def check_connection():
         return False
 
 
-def get_listings():
-    number_of_listings = 100
-    source = requests.get(
-        f"https://www.2dehands.be/lrp/api/search?attributesByKey\\[\\]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit={number_of_listings}&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view").text
+def get_listings(url):
+    source = requests.get(url).text
     if len(source) == 161:
         print("BAD REQUEST")
         rumps.alert(title="CamAlert",
@@ -198,11 +199,14 @@ def update(show_notification=True):
     if not check_connection():
         return
     first_install = bool(os.path.getsize(os.path.join(path, "output.txt")) == 0)
-    listings = get_listings()
-    found_listings_dictionary = blocklist_filter(listings)
-    new_listings_dictionary = new_listings(found_listings_dictionary)
+    new_listings_dictionary_total = {}
+    for url in url_list:
+        listings = get_listings(url)
+        found_listings_dictionary = blocklist_filter(listings)
+        new_listings_dictionary = new_listings(found_listings_dictionary)
+        new_listings_dictionary_total = new_listings_dictionary_total | new_listings_dictionary
     if show_notification and not first_install:
-        update_notification(new_listings_dictionary)
+        update_notification(new_listings_dictionary_total)
     elif first_install:
         # It's the first install of the app, display an alert
         rumps.alert(title="CamAlert",
