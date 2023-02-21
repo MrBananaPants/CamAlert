@@ -12,7 +12,7 @@ import requests
 import rumps
 
 path = os.path.join(os.getenv("HOME"), "CamAlert")
-version = "0.5.0"
+version = "0.5.1"
 
 url_list = [
     "https://www.2dehands.be/lrp/api/search?attributesByKey[]=Language%3Aall-languages&l1CategoryId=31&l2CategoryId=480&limit=100&offset=0&postcode=9000&searchInTitleAndDescription=true&sortBy=SORT_INDEX&sortOrder=DECREASING&viewOptions=gallery-view"]
